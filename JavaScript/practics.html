@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practics Event</title>
+    <link rel="stylesheet" href="event.css" />
+    <style>
+        h1{
+            margin-bottom: 2.4rem;
+        }
+    </style>
+</head>
+
+    
+    <h1>Inline Event</h1>
+    <button onclick="alert('Welcome')">greeting</button>
+    <button ondblclick="alert('welcome javascript')">greeting again</button>
+    <button onmouseover="alert('welcome again')">greeting again</button>
+<br>
+
+    <h1>Dom Event handler</h1>
+    <button id="myBtn">greeting</button>
+    <button id="myBtn1">greeting again</button>
+<br>
+
+    <h1>addEventListener Event handler</h1>
+    <button id="myBtn2">greeting</button>
+    <button id="myBtn3">greeting again</button>
+
+    <script>
+        document.getElementById("myBtn").onclick=function(){
+            alert("To the world best");
+        };
+    
+        document.getElementById("myBtn1").onmouseover=function(){
+            alert("Second js program");
+        };
+
+        // addEvent
+        document.getElementById("myBtn2").addEventListener('click', function(){
+            alert("addEventListener in javascript program");
+        });
+        document.getElementById("myBtn3").addEventListener('mouseover', function(){
+            alert("addEventListener in javascript program");
+        });
+
+
+    </script>
+</body>
+</html>
