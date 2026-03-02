@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title if title else 'HeartCare AI' }}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+
+  {% block head %}{% endblock %}
+</head>
+<body class="bg-grid" data-theme="dark">
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-glass sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <span class="brand-dot"></span>
+      <span class="fw-bold">HeartCare AI</span>
+      <span class="pill ms-2 d-none d-md-inline-flex">Risk prediction • PDF report</span>
+    </a>
+    <div class="ms-auto d-flex gap-2 align-items-center">
+      <button class="btn btn-ghost btn-sm" type="button" id="themeToggle" aria-label="Toggle theme">
+        <span class="theme-icon" aria-hidden="true">🌙</span>
+        <span class="d-none d-md-inline">Theme</span>
+      </button>
+      <a class="btn btn-ghost btn-sm" href="/">New check</a>
+    </div>
+  </div>
+</nav>
+
+<main class="container hero">
+  {% block content %}{% endblock %}
+
+  <div class="text-center mt-4 mb-5 footer-note">
+    <div class="divider my-4"></div>
+    <div>Disclaimer: This tool is for educational use and risk screening only. It is not a medical diagnosis.</div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(() => {
+  const root = document.body;
+  const btn = document.getElementById('themeToggle');
+  const icon = btn ? btn.querySelector('.theme-icon') : null;
+
+  const preferred = () => {
+    const saved = localStorage.getItem('hc_theme');
+    if (saved === 'light' || saved === 'dark') return saved;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  };
+
+  const apply = (t) => {
+    root.setAttribute('data-theme', t);
+    if (icon) icon.textContent = (t === 'light') ? '☀️' : '🌙';
+  };
+
+  apply(preferred());
+
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const now = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      localStorage.setItem('hc_theme', now);
+      apply(now);
+    });
+  }
+})();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
