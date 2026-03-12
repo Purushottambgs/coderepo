@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% set title = 'HeartCare AI • Dashboard' %}
+
+{% block content %}
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <div class="kicker">analytics</div>
+      <h1 class="mb-0">Dashboard</h1>
+      <p class="sub mb-0">Prediction statistics and recent activity.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/" class="btn btn-ghost">Home</a>
+      <a href="/history" class="btn btn-ghost">History</a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="form-card p-4 text-center h-100">
+        <div class="mini">Total Predictions</div>
+        <div class="h2 mt-2">{{ data.total }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="form-card p-4 text-center h-100">
+        <div class="mini">Average BMI</div>
+        <div class="h2 mt-2">{{ data.avg_bmi }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="form-card p-4 text-center h-100">
+        <div class="mini">Avg Systolic BP</div>
+        <div class="h2 mt-2">{{ data.avg_ap_hi }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="form-card p-4 text-center h-100">
+        <div class="mini">Avg Diastolic BP</div>
+        <div class="h2 mt-2">{{ data.avg_ap_lo }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="hero-card p-4 h-100">
+        <h5 class="section-title mb-3">Risk Distribution</h5>
+        <canvas id="riskChart"></canvas>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="hero-card p-4 h-100">
+        <h5 class="section-title mb-3">Risk Summary</h5>
+        <ul style="color: rgba(234,240,255,.82); line-height:2;">
+          <li>Low Risk: {{ data.low }}</li>
+          <li>Moderate Risk: {{ data.moderate }}</li>
+          <li>High Risk: {{ data.high }}</li>
+          <li>Critical Risk: {{ data.critical }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-card p-4 mt-4">
+    <h5 class="section-title mb-3">Recent Predictions</h5>
+
+    {% if data.recent_records %}
+    <div class="table-responsive">
+      <table class="table table-dark table-borderless align-middle">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Age</th>
+            <th>BP</th>
+            <th>BMI</th>
+            <th>Probability</th>
+            <th>Risk Level</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in data.recent_records %}
+          <tr>
+            <td>{{ row["id"] }}</td>
+            <td>{{ row["created_at"] }}</td>
+            <td>{{ row["age"] }}</td>
+            <td>{{ row["ap_hi"] }}/{{ row["ap_lo"] }}</td>
+            <td>{{ row["bmi"] }}</td>
+            <td>{{ row["probability"] }}%</td>
+            <td>{{ row["risk_level"] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="sub">No prediction records found.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('riskChart');
+
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Low', 'Moderate', 'High', 'Critical'],
+        datasets: [{
+            data: [{{ data.low }}, {{ data.moderate }}, {{ data.high }}, {{ data.critical }}],
+            backgroundColor: ['#22c55e', '#f59e0b', '#ef4444', '#b91c1c'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        plugins: {
+            legend: {
+                labels: {
+                    color: '#eaf0ff'
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

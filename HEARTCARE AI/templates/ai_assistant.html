@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% set title = 'HeartCare AI • Assistant' %}
+
+{% block content %}
+<div class="container py-4">
+
+  <div class="hero-card p-4 p-md-5 mb-4 slide-up">
+    <div class="kicker mb-2">smart support</div>
+    <h1 class="mb-3">AI Health Assistant</h1>
+    <p class="sub mb-0">
+      Ask simple questions about heart disease risk, blood pressure, cholesterol, BMI, diet, exercise, and prevention.
+    </p>
+  </div>
+
+  <div class="row g-4">
+    
+    <div class="col-lg-7">
+      <div class="form-card p-4 p-md-5 h-100 fade-in">
+
+        <h5 class="section-title mb-3">Ask Your Question</h5>
+        <div class="divider my-3"></div>
+
+        <form method="POST" action="/ai_assistant">
+          <div class="mb-3">
+            <label class="form-label">Enter your question</label>
+            <textarea 
+              name="user_query" 
+              class="form-control" 
+              rows="5"
+              placeholder="Example: How can I reduce heart disease risk?"
+              required>{{ user_query }}</textarea>
+          </div>
+
+          <button type="submit" class="btn btn-glow btn-lg">Ask Assistant</button>
+        </form>
+
+        {% if answer %}
+        <div class="divider my-4"></div>
+
+        <div class="mini mb-2">Assistant Response</div>
+        <div class="p-4 rounded-4" style="background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);">
+          <div class="fs-5">{{ answer }}</div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="hero-card p-4 p-md-5 h-100 card-raise">
+
+        <h5 class="section-title mb-3">Suggested Questions</h5>
+        <div class="divider my-3"></div>
+
+        <ul class="m-0 ps-3" style="color: rgba(234,240,255,.82); line-height: 1.9;">
+          <li>How can I reduce heart disease risk?</li>
+          <li>Why is high blood pressure dangerous?</li>
+          <li>What does high cholesterol do?</li>
+          <li>How does BMI affect heart health?</li>
+          <li>What foods are good for heart health?</li>
+          <li>Why is exercise important?</li>
+          <li>How does smoking affect the heart?</li>
+          <li>What happens if glucose is high?</li>
+        </ul>
+
+        <div class="divider my-4"></div>
+
+        <div class="mini">Note</div>
+        <div class="sub">
+          This assistant provides educational guidance only and should not replace professional medical advice or diagnosis.
+        </div>
+
+        <div class="text-center mt-4">
+          <img src="{{ url_for('static', filename='img/human_heart_jpg.jpg') }}"
+               alt="Heart"
+               style="width:100%; max-width:320px; border-radius:18px; border:1px solid rgba(255,255,255,.12); box-shadow:0 18px 60px rgba(0,0,0,.4)">
+        </div>
+
+        <div class="divider my-4"></div>
+
+        <div class="d-grid gap-2">
+          <a href="/" class="btn btn-glow">Check Risk Now</a>
+          <a href="/about_heart_disease" class="btn btn-ghost">About Heart Disease</a>
+          <a href="/dashboard" class="btn btn-ghost">View Dashboard</a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

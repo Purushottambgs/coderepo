@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction History - HeartCare AI</title>
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            margin:0;
+            background:#f4f7fb;
+        }
+        .navbar{
+            background:#1e3a8a;
+            color:#fff;
+            padding:16px 30px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+        .navbar a{
+            color:#fff;
+            text-decoration:none;
+            margin-left:15px;
+            font-size:14px;
+            border:1px solid rgba(255,255,255,0.4);
+            padding:8px 12px;
+            border-radius:6px;
+        }
+        .container{
+            width:95%;
+            margin:30px auto;
+        }
+        h2{
+            color:#1e3a8a;
+            margin-bottom:20px;
+        }
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:#fff;
+            box-shadow:0 2px 10px rgba(0,0,0,0.08);
+            border-radius:10px;
+            overflow:hidden;
+        }
+        th, td{
+            padding:12px;
+            text-align:center;
+            border-bottom:1px solid #eee;
+            font-size:14px;
+        }
+        th{
+            background:#e8efff;
+            color:#1e3a8a;
+        }
+        tr:hover{
+            background:#f9fbff;
+        }
+        .low{color:green;font-weight:bold;}
+        .moderate{color:#c58b00;font-weight:bold;}
+        .high{color:#d97706;font-weight:bold;}
+        .critical{color:red;font-weight:bold;}
+        .empty{
+            background:#fff;
+            padding:30px;
+            border-radius:10px;
+            text-align:center;
+            box-shadow:0 2px 10px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div><strong>HeartCare AI</strong></div>
+        <div>
+            <a href="/">Home</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Prediction History</h2>
+
+        {% if records %}
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Age</th>
+                <th>BP</th>
+                <th>BMI</th>
+                <th>Probability %</th>
+                <th>Risk Level</th>
+            </tr>
+
+            {% for row in records %}
+            <tr>
+                <td>{{ row["id"] }}</td>
+                <td>{{ row["created_at"] }}</td>
+                <td>{{ row["age"] }}</td>
+                <td>{{ row["ap_hi"] }}/{{ row["ap_lo"] }}</td>
+                <td>{{ row["bmi"] }}</td>
+                <td>{{ row["probability"] }}</td>
+                <td class="
+                    {% if row['risk_level'] == 'Low Risk' %}low
+                    {% elif row['risk_level'] == 'Moderate Risk' %}moderate
+                    {% elif row['risk_level'] == 'High Risk' %}high
+                    {% else %}critical
+                    {% endif %}
+                ">
+                    {{ row["risk_level"] }}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <div class="empty">
+            <h3>No prediction history found</h3>
+            <p>Make your first prediction from the home page.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>
