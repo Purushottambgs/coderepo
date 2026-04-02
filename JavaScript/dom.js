@@ -5,6 +5,13 @@ let addBtn=document.getElementById("addBtn");
 let tasklist=document.getElementById("taskList");
 let colorBtn=document.getElementById("colorBtn");
 
+
+
+let h2=document.querySelector("h2");
+
+h2.addEventListener("click", function(){
+    h2.style.color="red";
+});
 // Add task event
 alert("Hello");
 addBtn.addEventListener("click", function(){

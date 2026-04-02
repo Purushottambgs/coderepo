@@ -1,0 +1,14 @@
+{% extends "flashmessage.html" %}
+
+{% block title %}Form Page {% endblock %}
+
+{% block content %}
+<h2>Send your feedback</h2>
+
+<form action="/" method="POST">
+    <label>Your Name:</label><br>
+    <input type="text" name="name" placeholder="enter your name"> <br><br>
+    <input type="submit" value="Submit">
+</form>
+
+{% endblock %}

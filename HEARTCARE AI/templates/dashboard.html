@@ -4,18 +4,19 @@
 {% block content %}
 <div class="container py-4">
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
       <div class="kicker">analytics</div>
       <h1 class="mb-0">Dashboard</h1>
-      <p class="sub mb-0">Prediction statistics and recent activity.</p>
+      <p class="sub mb-0">Prediction statistics, system insights, and recent activity.</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 flex-wrap">
       <a href="/" class="btn btn-ghost">Home</a>
       <a href="/history" class="btn btn-ghost">History</a>
     </div>
   </div>
 
+  <!-- Top Stats -->
   <div class="row g-3 mb-4">
     <div class="col-md-3">
       <div class="form-card p-4 text-center h-100">
@@ -43,33 +44,70 @@
     </div>
   </div>
 
+  <!-- Middle Section -->
   <div class="row g-4">
     <div class="col-lg-6">
       <div class="hero-card p-4 h-100">
         <h5 class="section-title mb-3">Risk Distribution</h5>
-        <canvas id="riskChart"></canvas>
+        <canvas id="riskChart" style="max-height: 300px;"></canvas>
       </div>
     </div>
 
     <div class="col-lg-6">
       <div class="hero-card p-4 h-100">
         <h5 class="section-title mb-3">Risk Summary</h5>
-        <ul style="color: rgba(234,240,255,.82); line-height:2;">
-          <li>Low Risk: {{ data.low }}</li>
-          <li>Moderate Risk: {{ data.moderate }}</li>
-          <li>High Risk: {{ data.high }}</li>
-          <li>Critical Risk: {{ data.critical }}</li>
-        </ul>
+
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="form-card p-3 text-center h-100">
+              <div class="mini">Low Risk</div>
+              <div class="h4 mt-2 text-success">{{ data.low }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-card p-3 text-center h-100">
+              <div class="mini">Moderate Risk</div>
+              <div class="h4 mt-2 text-warning">{{ data.moderate }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-card p-3 text-center h-100">
+              <div class="mini">High Risk</div>
+              <div class="h4 mt-2 text-danger">{{ data.high }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-card p-3 text-center h-100">
+              <div class="mini">Critical Risk</div>
+              <div class="h4 mt-2" style="color:#ff6b6b;">{{ data.critical }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Insights -->
+        <div class="p-3 rounded-4 mt-4" style="background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10);">
+          <div class="mini">System Insights</div>
+          <ul class="mt-2 mb-0 ps-3" style="color: rgba(234,240,255,.82); line-height:1.9;">
+            <li>Total records analyzed: {{ data.total }}</li>
+            <li>Average BMI: {{ data.avg_bmi }}</li>
+            <li>Average Systolic BP: {{ data.avg_ap_hi }}</li>
+            <li>Average Diastolic BP: {{ data.avg_ap_lo }}</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Recent Predictions -->
   <div class="hero-card p-4 mt-4">
-    <h5 class="section-title mb-3">Recent Predictions</h5>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+      <h5 class="section-title mb-0">Recent Predictions</h5>
+      <span class="mini">Latest 5 records</span>
+    </div>
 
     {% if data.recent_records %}
     <div class="table-responsive">
-      <table class="table table-dark table-borderless align-middle">
+      <table class="table table-dark table-borderless align-middle modern-table">
         <thead>
           <tr>
             <th>ID</th>
@@ -90,7 +128,17 @@
             <td>{{ row["ap_hi"] }}/{{ row["ap_lo"] }}</td>
             <td>{{ row["bmi"] }}</td>
             <td>{{ row["probability"] }}%</td>
-            <td>{{ row["risk_level"] }}</td>
+            <td>
+              {% if row["risk_level"] == "Low Risk" %}
+                <span class="badge rounded-pill bg-success">{{ row["risk_level"] }}</span>
+              {% elif row["risk_level"] == "Moderate Risk" %}
+                <span class="badge rounded-pill bg-warning text-dark">{{ row["risk_level"] }}</span>
+              {% elif row["risk_level"] == "High Risk" %}
+                <span class="badge rounded-pill bg-danger">{{ row["risk_level"] }}</span>
+              {% else %}
+                <span class="badge rounded-pill" style="background:#8b0000;">{{ row["risk_level"] }}</span>
+              {% endif %}
+            </td>
           </tr>
           {% endfor %}
         </tbody>
@@ -113,19 +161,45 @@ new Chart(ctx, {
         labels: ['Low', 'Moderate', 'High', 'Critical'],
         datasets: [{
             data: [{{ data.low }}, {{ data.moderate }}, {{ data.high }}, {{ data.critical }}],
-            backgroundColor: ['#22c55e', '#f59e0b', '#ef4444', '#b91c1c'],
-            borderWidth: 0
+            backgroundColor: ['#22c55e', '#f59e0b', '#ef4444', '#7f1d1d'],
+            borderWidth: 0,
+            hoverOffset: 8
         }]
     },
     options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
         plugins: {
             legend: {
+                position: 'bottom',
                 labels: {
-                    color: '#eaf0ff'
+                    color: '#eaf0ff',
+                    padding: 18,
+                    font: {
+                        size: 13
+                    }
                 }
             }
         }
     }
 });
 </script>
+
+<style>
+.modern-table thead th{
+  color: rgba(234,240,255,.78);
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.modern-table tbody tr{
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+.modern-table tbody td{
+  color: #eaf0ff;
+  background: transparent !important;
+}
+</style>
 {% endblock %}

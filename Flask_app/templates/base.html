@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <title>
+    {% block title %} My Feedback Site {% endblock %}    
+    </title>
+
+    <style>
+        body{font-family: Arial, Helvetica, sans-serif; padding:20px; background: black;}
+        header, footer {background: black; padding: 10px; color: white;}
+        nav a {margin: 0 10px; color: white; text-decoration: none;}
+        main{
+            background: white; padding: 20px; margin-top: 20px; border-radius: 1px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Feedback Page</h1>
+        <nav>
+            <a href="/feedback">Feedback</a>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %} {% endblock %}
+    </main>
+    
+    <footer>
+        <p>
+            & Create: 2026 by purushottam
+        </p>
+    </footer>
+</body>
+</html>

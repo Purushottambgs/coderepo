@@ -101,6 +101,24 @@ def risk_level(prob):
     else:
         return "Critical Risk", "Immediate cardiology consultation required."
 
+def bmi_category(bmi):
+    if bmi < 18.5:
+        return "Underweight"
+    elif bmi < 25:
+        return "Normal"
+    elif bmi < 30:
+        return "Overweight"
+    return "Obese"
+
+def confidence_band(prob):
+    if prob < 0.30:
+        return "Stable Zone"
+    elif prob < 0.60:
+        return "Watch Zone"
+    elif prob < 0.80:
+        return "Attention Zone"
+    return "Critical Zone"
+
 
 def get_risk_factors(age, bmi, ap_hi, ap_lo, cholesterol, gluc, smoke, alco, active):
     factors = []
@@ -165,6 +183,34 @@ def get_emergency_alert(ap_hi, ap_lo):
 def home():
     return render_template("index.html")
 
+def validate_inputs(age, height, weight, ap_hi, ap_lo, cholesterol, gluc, smoke, alco, active):
+    errors = []
+
+    if age < 1 or age > 100:
+        errors.append("Age must be between 1 and 100 years.")
+    if height < 100 or height > 250:
+        errors.append("Height must be between 100 and 250 cm.")
+    if weight < 20 or weight > 250:
+        errors.append("Weight must be between 20 and 250 kg.")
+    if ap_hi < 70 or ap_hi > 250:
+        errors.append("Systolic BP must be between 70 and 250.")
+    if ap_lo < 40 or ap_lo > 150:
+        errors.append("Diastolic BP must be between 40 and 150.")
+    if ap_hi <= ap_lo:
+        errors.append("Systolic BP must be greater than diastolic BP.")
+    if cholesterol not in [1, 2, 3]:
+        errors.append("Invalid cholesterol value.")
+    if gluc not in [1, 2, 3]:
+        errors.append("Invalid glucose value.")
+    if smoke not in [0, 1]:
+        errors.append("Invalid smoking value.")
+    if alco not in [0, 1]:
+        errors.append("Invalid alcohol value.")
+    if active not in [0, 1]:
+        errors.append("Invalid physical activity value.")
+
+    return errors
+
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -181,10 +227,30 @@ def predict():
         alco = int(request.form["alco"])
         active = int(request.form["active"])
 
-        # Feature Engineering
+        errors = validate_inputs(age, height, weight, ap_hi, ap_lo, cholesterol, gluc, smoke, alco, active)
+
+        if errors:
+            return render_template(
+                "result.html",
+                probability=0,
+                level="Invalid Input",
+                advice="Please correct the input values and try again.",
+                bmi=0,
+                map_value=0,
+                pulse_pressure=0,
+                risk_factors=errors,
+                health_tips=["Use valid medical values."],
+                emergency_alert=None,
+                band="Not Available",
+                bmi_status="Not Available",
+                generated_at="Unavailable"
+
+            )
+
         age_years = age
         height_m = height / 100
         BMI = weight / (height_m ** 2)
+        bmi_status = bmi_category(BMI)
         MAP = (2 * ap_lo + ap_hi) / 3
         Pulse_Pressure = ap_hi - ap_lo
 
@@ -215,12 +281,12 @@ def predict():
 
         prob = model.predict_proba(features)[0][1]
         level, advice = risk_level(prob)
+        band = confidence_band(prob)
 
         risk_factors = get_risk_factors(age, BMI, ap_hi, ap_lo, cholesterol, gluc, smoke, alco, active)
         health_tips = get_health_tips(BMI, ap_hi, ap_lo, cholesterol, gluc, smoke, alco, active)
         emergency_alert = get_emergency_alert(ap_hi, ap_lo)
 
-        # Save to database
         save_prediction({
             "age": age,
             "gender": gender,
@@ -243,20 +309,34 @@ def predict():
         })
 
         return render_template(
-            "result.html",
-            probability=round(prob * 100, 2),
-            level=level,
-            advice=advice,
-            bmi=round(BMI, 2),
-            map_value=round(MAP, 2),
-            pulse_pressure=round(Pulse_Pressure, 2),
-            risk_factors=risk_factors,
-            health_tips=health_tips,
-            emergency_alert=emergency_alert
-        )
-
-    except Exception as e:
-        return f"Error: {str(e)}"
+    "result.html",
+    probability=round(prob * 100, 2),
+    level=level,
+    advice=advice,
+    bmi=round(BMI, 2),
+    bmi_status=bmi_status,
+    map_value=round(MAP, 2),
+    pulse_pressure=round(Pulse_Pressure, 2),
+    risk_factors=risk_factors,
+    health_tips=health_tips,
+    emergency_alert=emergency_alert,
+    band="Not Available"
+)
+    except Exception:
+     return render_template(
+        "result.html",
+        probability=0,
+        level="Processing Error",
+        advice="Something went wrong while processing your request.",
+        bmi=0,
+        map_value=0,
+        pulse_pressure=0,
+        risk_factors=["Unable to process the request."],
+        health_tips=["Please check inputs and try again."],
+        emergency_alert=None,
+        band="Unavailable",
+        bmi_status="Unavailable"
+    )
     
 @app.route("/ai_assistant", methods=["GET", "POST"])
 def ai_assistant():
@@ -304,6 +384,15 @@ def get_ai_response(user_query):
 
     elif "hello" in q or "hi" in q or "hey" in q:
         return "Hello! I am your HeartCare AI Assistant. You can ask me about blood pressure, cholesterol, BMI, exercise, smoking, diet, glucose, or heart disease prevention."
+    
+    elif "low risk" in q:
+        return "Low risk means your current input profile shows fewer major cardiovascular warning patterns, but regular monitoring and a healthy lifestyle are still important."
+
+    elif "high risk" in q or "critical risk" in q:
+        return "High or critical risk means your health inputs show multiple warning indicators. You should improve lifestyle factors and seek medical advice."
+
+    elif "bmi category" in q:
+        return "BMI categories are: Underweight below 18.5, Normal 18.5 to 24.9, Overweight 25 to 29.9, and Obese above 30."
 
     else:
         return "I can help with topics like blood pressure, cholesterol, BMI, smoking, alcohol, diet, exercise, glucose, and heart disease prevention. Please ask a health-related question."
@@ -376,20 +465,28 @@ def download_report():
     probability = request.form["probability"]
     level = request.form["level"]
     advice = request.form["advice"]
+    bmi = request.form.get("bmi", "N/A")
+    map_value = request.form.get("map_value", "N/A")
+    pulse_pressure = request.form.get("pulse_pressure", "N/A")
 
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
 
     p.setFont("Helvetica-Bold", 16)
-    p.drawString(100, 750, "HeartCare AI - Risk Report")
+    p.drawString(100, 760, "HeartCare AI - Heart Risk Report")
 
     p.setFont("Helvetica", 12)
-    p.drawString(100, 720, f"Predicted Probability: {probability} %")
-    p.drawString(100, 700, f"Risk Level: {level}")
-    p.drawString(100, 680, f"Recommendation: {advice}")
+    p.drawString(100, 730, f"Predicted Probability: {probability}%")
+    p.drawString(100, 710, f"Risk Level: {level}")
+    p.drawString(100, 690, f"Recommendation: {advice}")
+    p.drawString(100, 670, f"BMI: {bmi}")
+    p.drawString(100, 650, f"MAP: {map_value}")
+    p.drawString(100, 630, f"Pulse Pressure: {pulse_pressure}")
 
-    p.drawString(100, 640, "Generated by HeartCare AI System")
-    p.drawString(100, 620, "Developer: Purushottam Jha")
+    p.drawString(100, 590, "Generated by HeartCare AI System")
+    p.drawString(100, 570, "Developer: Purushottam Kumar")
+    p.drawString(100, 550, "Disclaimer: This report is for educational use only.")
+    p.drawString(100, 530, "It is not a substitute for professional medical diagnosis.")
 
     p.save()
     buffer.seek(0)
