@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 
 appp= Flask(__name__)
 
@@ -21,7 +21,22 @@ def fail(marks):
 @appp.route("/formm", methods=["GET", "POST"])
 def formm():
     if request.method=="GET":
-        return render_template('form.html')
+        return render_template('formm.html')
+    else:
+        maths= float(request.form['maths'])
+        science= float(request.form['science'])
+        history= float(request.form['history'])
+        
+        average_marks=(maths+science+history)/3
+        res=""
+        if average_marks>=50:
+            res="success"
+        else:
+            res="not success"
+        
+        return redirect(url_for(res, marks=average_marks))
+
+       # return render_template('formm.html', marks=average_marks)
 
 
 
