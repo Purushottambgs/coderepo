@@ -11,4 +11,4 @@ with open('big.txt', 'r') as f:
 
     while len(f.read(char_size))>0:
         print(f.read(char_size), end=" ")
-        print(char_size)s
+        print(char_size)
