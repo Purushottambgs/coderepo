@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(venv/Scripts/pip install:*)",
+      "Bash(venv/Scripts/python.exe -c ':*)",
+      "Bash(venv/Scripts/python.exe -c \"import flask; print\\('Flask OK:', flask.__version__\\)\")",
+      "Bash(venv/Scripts/python.exe app.py)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:5000/)"
+    ]
+  }
+}

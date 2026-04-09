@@ -15,7 +15,12 @@
         <span class="pill">⚡ Fast</span>
         <span class="pill">🧾 PDF Report</span>
         <span class="pill">🧠 XGBoost Model</span>
+        <span class="pill">🫀 ECG Analysis</span>
       </div>
+
+      <a href="/ecg_analysis" class="btn btn-ghost btn-sm mb-3" style="border-color:rgba(124,58,237,.45);color:rgba(167,139,250,.95);">
+        → Also try: ECG Image Analysis
+      </a>
 
       <div class="d-none d-lg-block">
         <img class="hero-img" src="{{ url_for('static', filename='img/heartimg.png') }}" alt="Heart illustration">
@@ -37,6 +42,14 @@
 
       <form action="/predict" method="post" class="needs-validation" novalidate id="hcForm">
         <div class="row g-3">
+
+          <div class="col-12">
+            <label class="form-label">Patient Name <span class="mini">(optional)</span></label>
+            <input type="text" name="patient_name" class="form-control"
+                   placeholder="e.g. Rahul Sharma" maxlength="80">
+          </div>
+
+          <div class="col-12"><div class="divider my-1"></div></div>
 
           <div class="col-md-4">
             <div class="range-meta">

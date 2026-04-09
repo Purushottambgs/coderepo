@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% set title = 'HeartCare AI • Result' %}
-<div class="mini mt-2">Generated at: {{ generated_at }}</div>
 {% block content %}
 
 <style>
@@ -68,8 +67,12 @@
 
       <div class="kicker mb-2">prediction</div>
       <div class="h1 mb-3">Your Risk Report</div>
-      <p class="sub mb-0">Here’s what the model predicts based on the inputs you provided.</p>
-
+      <p class="sub mb-0">
+        {% if patient_name and patient_name != 'Anonymous' %}
+          Patient: <strong>{{ patient_name }}</strong> &nbsp;|&nbsp;
+        {% endif %}
+        AI-powered cardiovascular screening result.
+      </p>
       <div class="mini mt-2">Generated at: {{ generated_at }}</div>
 
       <div class="divider my-4"></div>
@@ -126,15 +129,8 @@
             <div class="mini mb-2">Risk Bar</div>
             <div class="progress"
                  style="height:14px;border-radius:999px;background:rgba(255,255,255,.08)">
-
-              {% if probability < 30 %}
-                <div class="progress-bar" style="width: {{ probability }}%; background: var(--good);"></div>
-              {% elif probability < 60 %}
-                <div class="progress-bar" style="width: {{ probability }}%; background: var(--warn);"></div>
-              {% else %}
-                <div class="progress-bar" style="width: {{ probability }}%; background: var(--bad);"></div>
-              {% endif %}
-
+              <div class="progress-bar {{ 'bg-success' if probability < 30 else ('bg-warning' if probability < 60 else 'bg-danger') }}"
+                   data-w="{{ probability }}"></div>
             </div>
           </div>
 
@@ -200,20 +196,23 @@
       <div class="d-flex flex-wrap gap-2">
 
         <form action="{{ url_for('download_report') }}" method="post">
-          <input type="hidden" name="probability" value="{{ probability }}">
-          <input type="hidden" name="level" value="{{ level }}">
-          <input type="hidden" name="advice" value="{{ advice }}">
-          <input type="hidden" name="bmi" value="{{ bmi }}">
-          <input type="hidden" name="map_value" value="{{ map_value }}">
-          <input type="hidden" name="pulse_pressure" value="{{ pulse_pressure }}">
-
-          <button type="submit" class="btn btn-glow btn-lg">
-            Download PDF Report
-          </button>
+          <input type="hidden" name="patient_name"    value="{{ patient_name }}">
+          <input type="hidden" name="probability"     value="{{ probability }}">
+          <input type="hidden" name="level"           value="{{ level }}">
+          <input type="hidden" name="advice"          value="{{ advice }}">
+          <input type="hidden" name="bmi"             value="{{ bmi }}">
+          <input type="hidden" name="bmi_status"      value="{{ bmi_status }}">
+          <input type="hidden" name="map_value"       value="{{ map_value }}">
+          <input type="hidden" name="pulse_pressure"  value="{{ pulse_pressure }}">
+          <input type="hidden" name="generated_at"    value="{{ generated_at }}">
+          <input type="hidden" name="risk_factors_str" value="{{ risk_factors | join(' | ') }}">
+          <input type="hidden" name="health_tips_str"  value="{{ health_tips | join(' | ') }}">
+          <button type="submit" class="btn btn-glow btn-lg">Download PDF Report</button>
         </form>
 
+        <a href="/ecg_analysis" class="btn btn-ghost btn-lg">🫀 ECG Analysis</a>
         <a href="/history" class="btn btn-ghost btn-lg">View History</a>
-        <a href="/" class="btn btn-ghost btn-lg">← Go back</a>
+        <a href="/" class="btn btn-ghost btn-lg">← New Check</a>
       </div>
 
     </div>
@@ -255,4 +254,12 @@
   </div>
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('[data-w]').forEach(el => {
+  el.style.width = el.getAttribute('data-w') + '%';
+});
+</script>
 {% endblock %}
